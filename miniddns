@@ -1,11 +1,22 @@
 #!/usr/bin/sh
 
+# Error out if any command fails
+set -e
+
+# Dependencies: sha1sum, awk, nc (netcat)
+
 for last in "$@"; do :; done
 if [ "$last" == "--help" ] || [ "$last" == "-h" ]; then
-    echo "Usage: $0 <ddns_host> <ddns_port> <secret> <target_domains> <target_ip>"
-    echo "Dependencies: sha1sum, awk, nc (netcat)"
-    echo "Example: $0 192.168.1.1 5533 this_is_a_secret_the_server_has mycomputer 192.168.1.52"
-    echo "Example: $0 192.168.1.1 5533 this_is_a_secret_the_server_has \"mycomputer linuxlaptop\" 192.168.1.52"
+    echo "Usage: $0 <ddns_host> <ddns_port> <secret> <target_domains> <target_ip>|auto"
+    echo " - ddns_host: The address/hostname of the ddns server"
+    echo " - ddns_port: The port number of the ddns server"
+    echo " - secret: A shared secret already configured on the ddns server"
+    echo " - target_domains: The domain names you'd like to direct to target_ip"
+    echo " - target_ip: The ip address you'd like to direct target_domains to. This may also be set to \"auto\" in which case the server uses the ip of the reveived tcp packet. Do not use when using NAT"
+    echo ""
+    echo "Examples:"
+    echo "   $0 192.168.1.1 5533 this_is_a_secret_the_server_has mycomputer 192.168.1.52"
+    echo "   $0 192.168.1.1 5533 this_is_a_secret_the_server_has \"mycomputer linuxlaptop\" 192.168.1.52"
     exit 0
 fi
 
@@ -24,3 +35,4 @@ message="$target_ip $domains"
 salt=`tr -dc A-Za-z0-9 </dev/urandom | head -c 20`
 hash=`echo -n "$salt$secret$message" | sha256sum | awk '{print $1}'`
 echo -n "auth-$salt-$hash $message" | nc "$server" "$server_port"
+echo

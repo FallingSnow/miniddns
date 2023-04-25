@@ -18,7 +18,7 @@ $ miniddnsd
 To run the server in a production manner, save the secret to a file so it can be loaded again at reboot. Then cat the file into the `MINIDDNS_SECRET` environmental variable.
 ```sh
 $ tr -dc 'A-Za-z0-9' </dev/urandom | head -c 128 > .miniddns_secret
-chmod 400 .miniddns_secret
+$ chmod 400 .miniddns_secret
 $ 
 $ MINIDDNS_SECRET=`cat .miniddns_secret` miniddnsd
 ```

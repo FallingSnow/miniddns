@@ -1,0 +1,26 @@
+#!/usr/bin/sh
+
+for last in "$@"; do :; done
+if [ "$last" == "--help" ] || [ "$last" == "-h" ]; then
+    echo "Usage: $0 <ddns_host> <ddns_port> <secret> <target_domains> <target_ip>"
+    echo "Dependencies: sha1sum, awk, nc (netcat)"
+    echo "Example: $0 192.168.1.1 5533 this_is_a_secret_the_server_has mycomputer 192.168.1.52"
+    echo "Example: $0 192.168.1.1 5533 this_is_a_secret_the_server_has \"mycomputer linuxlaptop\" 192.168.1.52"
+    exit 0
+fi
+
+server=$1
+server_port=$2
+secret=$3
+domains=$4
+target_ip=$5
+
+if [ $# -lt 5 ]; then
+    echo "Not enough arguments";
+    exit 1;
+fi
+
+message="$target_ip $domains"
+salt=`tr -dc A-Za-z0-9 </dev/urandom | head -c 20`
+hash=`echo -n "$salt$secret$message" | sha256sum | awk '{print $1}'`
+echo -n "auth-$salt-$hash $message" | nc "$server" "$server_port"

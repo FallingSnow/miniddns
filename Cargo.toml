@@ -1,0 +1,27 @@
+[package]
+name = "miniddns"
+version = "0.1.0"
+edition = "2021"
+
+[features]
+default = ["env_logger", "auth"]
+env_logger = ["dep:env_logger"]
+auth = ["dep:sha2"]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[dependencies]
+log = { version = "0.4.4", default-features = false }
+env_logger = { version = "0.10.0", optional = true }
+sha2 = { version = "0.10.6", optional = true }
+
+[dev-dependencies]
+test-log = "0.2.11"
+
+[[bin]]
+name = "miniddnsd"
+path = "src/main.rs"
+
+[profile.release]
+opt-level = "z"
+lto = true
+strip = true
